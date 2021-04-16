@@ -1,0 +1,4 @@
+*.pyc
+*.sw?
+venv/
+__pycache__/
