@@ -28,12 +28,33 @@ class Dodeca:
         return '\n'.join([face.__str__() for face in self.faces])
 
     def make_adj_list(self):
-        top = 'A'
-        bottom = 'L'
-        top_row = 'BCDEF'
-        bottom_row = 'GHIJK'
-        adj_list = {'A': list(top_row)}
+        top_face = self.face_string[0]
+        top_row_faces = list(self.face_string[1: 6])
+        bottom_row_faces = list(self.face_string[6: 11])
+        bottom_face = self.face_string[11]
+        adj_list = {'A': top_row_faces}
+        for ix, val in enumerate(top_row_faces):
+            adj_list[val] = [top_face]
+            adj_list[val].extend([self.get_prev_face(top_row_faces, ix), self.get_next_face(top_row_faces, ix)])
+            # adj_list[val] = [top].extend([top_row_faces[(ix + 1) % len(top_row_faces)],  
         return adj_list
+
+    def get_faces_this_row():
+        pass
+
+
+    @staticmethod
+    def get_next_face(face_list, ix):
+        return face_list[ix + 1] if ix < len(face_list) - 1 else face_list[0]
+
+    @staticmethod
+    def get_prev_face(face_list, ix):
+        return face_list[ix - 1] if ix > 0 else face_list[len(face_list) - 1]
+        
+
+
+
+
 
 if __name__ == '__main__':
     d = Dodeca()
