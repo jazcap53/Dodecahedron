@@ -41,6 +41,12 @@ class Dodeca:
                                   self.get_next_face_this_row(top_row_faces, ix)])
             adj_list[val].extend([self.get_prev_face_other_row(bottom_row_faces, ix),
                                   self.get_next_face_other_row(bottom_row_faces, ix)])
+        for ix, val in enumerate(bottom_row_faces):
+            adj_list[val] = [bottom_face[0]]
+            adj_list[val].extend([self.get_prev_face_this_row(bottom_row_faces, ix),
+                                  self.get_next_face_this_row(bottom_row_faces, ix)])
+            adj_list[val].extend([self.get_prev_face_other_row(top_row_faces, ix),
+                                  self.get_next_face_other_row(top_row_faces, ix)])
         adj_list['L'] = bottom_row_faces
         return adj_list
 
