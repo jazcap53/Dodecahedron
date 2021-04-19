@@ -37,10 +37,10 @@ class Dodeca:
         adj_list = {'A': top_row_faces}
         for ix, val in enumerate(top_row_faces):
             adj_list[val] = [top_face[0]]
-            adj_list[val].extend([self.get_prev_face_top_row(top_row_faces, ix),
-                                  self.get_next_face_top_row(top_row_faces, ix)])
-            adj_list[val].extend([self.get_prev_face_bottom_row(bottom_row_faces, ix),
-                                  self.get_next_face_bottom_row(bottom_row_faces, ix)])
+            adj_list[val].extend([self.get_prev_face_this_row(top_row_faces, ix),
+                                  self.get_next_face_this_row(top_row_faces, ix)])
+            adj_list[val].extend([self.get_prev_face_other_row(bottom_row_faces, ix),
+                                  self.get_next_face_other_row(bottom_row_faces, ix)])
         adj_list['L'] = bottom_row_faces
         return adj_list
 
@@ -49,19 +49,19 @@ class Dodeca:
 
 
     @staticmethod
-    def get_next_face_top_row(face_list, ix):
+    def get_next_face_this_row(face_list, ix):
         return face_list[ix + 1] if ix < len(face_list) - 1 else face_list[0]
 
     @staticmethod
-    def get_prev_face_top_row(face_list, ix):
+    def get_prev_face_this_row(face_list, ix):
         return face_list[ix - 1] if ix > 0 else face_list[len(face_list) - 1]
 
     @staticmethod
-    def get_next_face_bottom_row(face_list, ix):
+    def get_next_face_other_row(face_list, ix):
         return face_list[ix]
 
     @staticmethod
-    def get_prev_face_bottom_row(face_list, ix):
+    def get_prev_face_other_row(face_list, ix):
         return face_list[ix - 1] if ix > 0 else face_list[len(face_list) - 1]
 
 
