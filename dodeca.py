@@ -1,19 +1,28 @@
 from dataclasses import dataclass, field
 from itertools import combinations
+from collections import namedtuple
 
 
 @dataclass
 class Pentagon:
     name: str
     colors: tuple[str] = ('Red', 'Blue')
+    _color: str = colors[0]
     # edges: tuple[int] = (0, 1, 2, 3, 4)
-    color: str = colors[0]
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, new_color):
+        self._color = new_color
 
     def __post_init__(self):
         assert len(self.name) == 1
 
     def __str__(self):
         return f"{self.__class__.__name__} {self.name}: {self.color}"
+
 
 @dataclass
 class Dodeca:
@@ -28,7 +37,9 @@ class Dodeca:
         self.adj_list = self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
 
     def __str__(self):
-        return '\n'.join([face.__str__() for face in self.faces])
+        return '\n'.join([Pentagon(self.faces[i][j]).__str__() 
+                          for i in range(len(self.faces)) 
+                          for j in range(len(self.faces[i]))])
 
     def make_adj_list(self):
         top_face = self.get_faces_this_row(0)
@@ -87,4 +98,5 @@ if __name__ == '__main__':
     d = Dodeca()
     # print(d.faces)
     print(d)
+    print()
     print(d.adj_list)
