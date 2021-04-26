@@ -34,7 +34,7 @@ class Dodeca:
     face_string: str = field(default='ABCDEFGHIJKL')
     adj_list: dict[str: list[str]] = field(init=False)
     alt_colors: iter = combinations([0,1,2,3,4,5,6,7,8,9,10,11], 3)
-    face_names_to_faces: dict = field(init=False)
+    dict_face_names_to_faces: dict = field(init=False)
 
     def __post_init__(self):    
         self.face_names = [[self.face_string[0]], 
@@ -45,7 +45,7 @@ class Dodeca:
                       for i in range(len(self.face_names))
                       for j in range(len(self.face_names[i]))]
         self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
-        self.face_names_to_faces = {self.face_string[i]: self.faces[i] 
+        self.dict_face_names_to_faces = {self.face_string[i]: self.faces[i] 
                                    for i in range(len(self.face_string))}
 
     def __str__(self):
@@ -54,10 +54,11 @@ class Dodeca:
     def set_colors(self):
         try:
             blue_faces = next(self.alt_colors)
-            for face_ix in blue_faces:
+            for face_ix in blue_faces:  # blue_faces: a list of 3 ints
                 self.faces[face_ix].color = self.faces[face_ix].colors[1]
         except StopIteration:
-            return True
+            return False
+        return True
 
     def reset_colors(self):
         for face in self.faces:
@@ -106,43 +107,54 @@ class Dodeca:
 
     def check_no_adjacent_blue_faces(self):
         for i in range(len(self.face_string)):
-            face = self.face_names_to_faces[self.face_string[i]]
+            face = self.dict_face_names_to_faces[self.face_string[i]]
             face_name = face.name
             assert face_name == self.face_string[i]
             if face.color == 'Red':
                 continue
             for adj_face_name in self.adj_list[face_name]:
-                adj_face = self.face_names_to_faces[adj_face_name]
+                adj_face = self.dict_face_names_to_faces[adj_face_name]
                 if adj_face.color == 'Blue':    
                     return False
         return True
 
+    def search_colors(self):
+        pattern = self.set_colors()
+        while pattern:
+            if self.check_no_adjacent_blue_faces():
+                print(f'Success:\n{self}')
+                break
+            self.reset_colors()
+            pattern = self.set_colors()
+        else:
+            print('failure')
 
 
 if __name__ == '__main__':
     d = Dodeca()
-    print(d)
-    print()
-    print(d.adj_list)
-    # combo_list = combinations([0,1,2,3,4,5,6,7,8,9,10,11], 3)
-    # for _ in range(150):
-    #     next(combo_list)
-    # print(next(combo_list))
-    print()
-    d.set_colors()
-    print(d)
-    print(d.check_no_adjacent_blue_faces())
-    print()
-    d.reset_colors()
-    print(d)
-    print(d.check_no_adjacent_blue_faces())
-    print()
-    d.set_colors()
-    print(d)
-    print(d.check_no_adjacent_blue_faces())
-    print()
-    print(d.face_names)
-    print()
-    print(d.faces)
-    print()
-    print(d.face_names_to_faces)
+    # print(d)
+    # print()
+    # print(d.adj_list)
+    # # combo_list = combinations([0,1,2,3,4,5,6,7,8,9,10,11], 3)
+    # # for _ in range(150):
+    # #     next(combo_list)
+    # # print(next(combo_list))
+    # print()
+    # d.set_colors()
+    # print(d)
+    # print(d.check_no_adjacent_blue_faces())
+    # print()
+    # d.reset_colors()
+    # print(d)
+    # print(d.check_no_adjacent_blue_faces())
+    # print()
+    # d.set_colors()
+    # print(d)
+    # print(d.check_no_adjacent_blue_faces())
+    # print()
+    # print(d.face_names)
+    # print()
+    # print(d.faces)
+    # print()
+    # print(d.dict_face_names_to_faces)
+    d.search_colors()
