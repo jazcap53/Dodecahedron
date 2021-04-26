@@ -39,7 +39,7 @@ class Dodeca:
         self.faces = [Pentagon(self.face_names[i][j]) 
                       for i in range(len(self.face_names))
                       for j in range(len(self.face_names[i]))]
-        self.adj_list = self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
+        self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
 
     def __str__(self):
         return '\n'.join([face.__str__() for face in self.faces])
@@ -61,27 +61,25 @@ class Dodeca:
         top_row_face_names = self.get_face_names_this_row(1)
         bottom_row_face_names = self.get_face_names_this_row(2)
         bottom_face = self.get_face_names_this_row(3)
-        adj_list = {'A': top_row_face_names}
+        self.adj_list = {'A': top_row_face_names}
         for ix, val in enumerate(top_row_face_names):
-            adj_list[val] = [top_face[0]]
-            adj_list[val].extend([self.get_prev_face_this_row(top_row_face_names, ix),
+            self.adj_list[val] = [top_face[0]]
+            self.adj_list[val].extend([self.get_prev_face_this_row(top_row_face_names, ix),
                                   self.get_next_face_this_row(top_row_face_names, ix)])
-            adj_list[val].extend([self.get_prev_face_other_row(bottom_row_face_names, ix),
+            self.adj_list[val].extend([self.get_prev_face_other_row(bottom_row_face_names, ix),
                                   self.get_next_face_other_row(bottom_row_face_names, ix)])
-            adj_list[val].sort()
+            self.adj_list[val].sort()
         for ix, val in enumerate(bottom_row_face_names):
-            adj_list[val] = [bottom_face[0]]
-            adj_list[val].extend([self.get_prev_face_this_row(bottom_row_face_names, ix),
+            self.adj_list[val] = [bottom_face[0]]
+            self.adj_list[val].extend([self.get_prev_face_this_row(bottom_row_face_names, ix),
                                   self.get_next_face_this_row(bottom_row_face_names, ix)])
-            adj_list[val].extend([self.get_prev_face_other_row(top_row_face_names, ix),
+            self.adj_list[val].extend([self.get_prev_face_other_row(top_row_face_names, ix),
                                   self.get_next_face_other_row(top_row_face_names, ix)])
-            adj_list[val].sort()
-        adj_list['L'] = bottom_row_face_names
-        return adj_list
+            self.adj_list[val].sort()
+        self.adj_list['L'] = bottom_row_face_names
 
     def get_face_names_this_row(self, row_id) -> list[str]:
         return self.face_names[row_id]
-
 
     @staticmethod
     def get_next_face_this_row(face_list, ix):
@@ -98,6 +96,10 @@ class Dodeca:
     @staticmethod
     def get_prev_face_other_row(face_list, ix):
         return face_list[ix - 1] if ix > 0 else face_list[len(face_list) - 1]
+
+    def check_no_adjacent_blue_faces(self):
+        pass
+
 
     def get_max_blue_faces(self):
         pass
