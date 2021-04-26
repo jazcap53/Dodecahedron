@@ -27,19 +27,26 @@ class Pentagon:
 @dataclass
 class Dodeca:
     n_rows: int = 4
+    # face_names: [['A'], ['B','C','D','E','F'], ['G','H','I','J','K'], ['L']]
     face_names: list[list[str]] = field(init=False)
-    faces: list[list[Pentagon]] = field(init=False)
+    # faces: [Pentagon(name='A'...), Pentagon(name='B'...), ...]
+    faces: list[Pentagon] = field(init=False)
     face_string: str = field(default='ABCDEFGHIJKL')
     adj_list: dict[str: list[str]] = field(init=False)
     alt_colors: iter = combinations([0,1,2,3,4,5,6,7,8,9,10,11], 3)
+    face_names_to_faces: dict = field(init=False)
 
     def __post_init__(self):    
-        self.face_names = [[self.face_string[0]], [self.face_string[i] for i in range(1, 6)],
-                      [self.face_string[i] for i in range(6, 11)], [self.face_string[11]]]
+        self.face_names = [[self.face_string[0]], 
+                           [self.face_string[i] for i in range(1, 6)],
+                           [self.face_string[i] for i in range(6, 11)], 
+                           [self.face_string[11]]]
         self.faces = [Pentagon(self.face_names[i][j]) 
                       for i in range(len(self.face_names))
                       for j in range(len(self.face_names[i]))]
         self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
+        self.face_names_to_faces = {self.face_string[i]: self.faces[i] 
+                                   for i in range(len(self.face_string))}
 
     def __str__(self):
         return '\n'.join([face.__str__() for face in self.faces])
@@ -48,7 +55,7 @@ class Dodeca:
         try:
             blue_faces = next(self.alt_colors)
             for face_ix in blue_faces:
-                self.faces[face_ix].color = self.faces[face_ix].colors[1]  # = Pentagon().colors[1]
+                self.faces[face_ix].color = self.faces[face_ix].colors[1]
         except StopIteration:
             return True
 
@@ -98,17 +105,18 @@ class Dodeca:
         return face_list[ix - 1] if ix > 0 else face_list[len(face_list) - 1]
 
     def check_no_adjacent_blue_faces(self):
-        pass
+        for i in range(len(self.face_string)):
+            face = self.face_names_to_faces[self.face_string[i]]
+            face_name = face.name
+            assert face_name == self.face_string[i]
+            if face.color == 'Red':
+                continue
+            for adj_face_name in self.adj_list[face_name]:
+                adj_face = self.face_names_to_faces[adj_face_name]
+                if adj_face.color == 'Blue':    
+                    return False
+        return True
 
-
-    def get_max_blue_faces(self):
-        pass
-
-    def set_blue_faces(self, ct):
-        pass
-
-    def find_adj_blue_faces(self):
-        pass
 
 
 if __name__ == '__main__':
@@ -123,9 +131,18 @@ if __name__ == '__main__':
     print()
     d.set_colors()
     print(d)
+    print(d.check_no_adjacent_blue_faces())
     print()
     d.reset_colors()
     print(d)
+    print(d.check_no_adjacent_blue_faces())
     print()
     d.set_colors()
     print(d)
+    print(d.check_no_adjacent_blue_faces())
+    print()
+    print(d.face_names)
+    print()
+    print(d.faces)
+    print()
+    print(d.face_names_to_faces)
