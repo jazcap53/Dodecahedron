@@ -1,6 +1,6 @@
+import argparse
 from dataclasses import dataclass, field
 from itertools import combinations
-# from collections import namedtuple
 
 
 @dataclass
@@ -8,7 +8,7 @@ class Pentagon:
     name: str
     colors: tuple[str] = ('Red', 'Blue')
     _color: str = colors[0]
-    # edges: tuple[int] = (0, 1, 2, 3, 4)
+
     @property
     def color(self):
         return self._color
@@ -33,10 +33,14 @@ class Dodeca:
     faces: list[Pentagon] = field(init=False)
     face_string: str = field(default='ABCDEFGHIJKL')
     adj_list: dict[str: list[str]] = field(init=False)
-    alt_colors: iter = combinations([0,1,2,3,4,5,6,7,8,9,10,11], 3)
+    num_blues: int = field(init=False)
+    alt_colors: iter = field(init=False)  # = combinations([0,1,2,3,4,5,6,7,8,9,10,11], num_blues)
     dict_face_names_to_faces: dict = field(init=False)
 
-    def __post_init__(self):    
+    def __init__(self, blues):
+        self.__post_init__(blues)
+
+    def __post_init__(self, blues):    
         self.face_names = [[self.face_string[0]], 
                            [self.face_string[i] for i in range(1, 6)],
                            [self.face_string[i] for i in range(6, 11)], 
@@ -44,6 +48,8 @@ class Dodeca:
         self.faces = [Pentagon(self.face_names[i][j]) 
                       for i in range(len(self.face_names))
                       for j in range(len(self.face_names[i]))]
+        self.num_blues = blues
+        self.alt_colors = combinations([0,1,2,3,4,5,6,7,8,9,10,11], self.num_blues)
         self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
         self.dict_face_names_to_faces = {self.face_string[i]: self.faces[i] 
                                    for i in range(len(self.face_string))}
@@ -54,7 +60,7 @@ class Dodeca:
     def set_colors(self):
         try:
             blue_faces = next(self.alt_colors)
-            for face_ix in blue_faces:  # blue_faces: a list of 3 ints
+            for face_ix in blue_faces:  # blue_faces: a list of num_blues ints
                 self.faces[face_ix].color = self.faces[face_ix].colors[1]
         except StopIteration:
             return False
@@ -79,10 +85,14 @@ class Dodeca:
             self.adj_list[val].sort()
         for ix, val in enumerate(bottom_row_face_names):
             self.adj_list[val] = [bottom_face[0]]
-            self.adj_list[val].extend([self.get_prev_face_this_row(bottom_row_face_names, ix),
-                                  self.get_next_face_this_row(bottom_row_face_names, ix)])
-            self.adj_list[val].extend([self.get_prev_face_other_row(top_row_face_names, ix),
-                                  self.get_next_face_other_row(top_row_face_names, ix)])
+            self.adj_list[val].extend([
+                self.get_prev_face_this_row(bottom_row_face_names, ix),
+                self.get_next_face_this_row(bottom_row_face_names, ix)
+                ])
+            self.adj_list[val].extend([
+                self.get_prev_face_other_row(top_row_face_names, ix),
+                self.get_next_face_other_row(top_row_face_names, ix)
+                ])
             self.adj_list[val].sort()
         self.adj_list['L'] = bottom_row_face_names
 
@@ -123,38 +133,21 @@ class Dodeca:
         while pattern:
             if self.check_no_adjacent_blue_faces():
                 print(f'Success:\n{self}')
+                self.reset_colors()
                 break
             self.reset_colors()
             pattern = self.set_colors()
         else:
             print('failure')
 
+def main():
+    parser = argparse.ArgumentParser(description='Explore the dodecahedron')
+    parser.add_argument('blue', type=int, default=3,
+                        help='Number of blue faces in a red dodecahedron')
+    args = parser.parse_args()
+    d1 = Dodeca(args.blue)
+    d1.search_colors()
+
 
 if __name__ == '__main__':
-    d = Dodeca()
-    # print(d)
-    # print()
-    # print(d.adj_list)
-    # # combo_list = combinations([0,1,2,3,4,5,6,7,8,9,10,11], 3)
-    # # for _ in range(150):
-    # #     next(combo_list)
-    # # print(next(combo_list))
-    # print()
-    # d.set_colors()
-    # print(d)
-    # print(d.check_no_adjacent_blue_faces())
-    # print()
-    # d.reset_colors()
-    # print(d)
-    # print(d.check_no_adjacent_blue_faces())
-    # print()
-    # d.set_colors()
-    # print(d)
-    # print(d.check_no_adjacent_blue_faces())
-    # print()
-    # print(d.face_names)
-    # print()
-    # print(d.faces)
-    # print()
-    # print(d.dict_face_names_to_faces)
-    d.search_colors()
+    main()
