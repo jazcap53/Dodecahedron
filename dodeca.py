@@ -1,6 +1,6 @@
 import argparse
 from dataclasses import dataclass, field
-from itertools import combinations
+from itertools import combinations, chain
 
 
 @dataclass
@@ -27,31 +27,33 @@ class Pentagon:
 
 @dataclass
 class Dodeca:
+    """A representation of a dodecahedron: each face may be red or blue"""
     n_rows: int = 4
-    # face_names: [['A'], ['B','C','D','E','F'], ['G','H','I','J','K'], ['L']]
+    # face_names: [['A'], ['B','C','D','E','F'],
+    #              ['G','H','I','J','K'], ['L']]
     face_names: list[list[str]] = field(init=False)
-    # faces: [Pentagon(name='A'...), Pentagon(name='B'...), ...]
+    # faces: [Pentagon(name='A'...), Pentagon(name='B'...),
+    #        ...Pentagon(name='L'...)]]
     faces: list[Pentagon] = field(init=False)
     face_string: str = field(default='ABCDEFGHIJKL')
+    # map each face name to a list of its adjacent face names
     adj_list: dict[str: list[str]] = field(init=False)
-    num_blues: int = field(init=False)
-    alt_colors: iter = field(init=False)  # = combinations([0,1,2,3,4,5,6,7,8,9,10,11], num_blues)
+    n_blues: int = field(init=False)
+    second_colors: iter = field(init=False)  # = combinations(range(12), self.n_blues)
     dict_face_names_to_faces: dict = field(init=False)
 
-    def __init__(self, blues):
+    def __init__(self, blues: int):  # blues: c.l.a., defaults to 3
         self.__post_init__(blues)
 
-    def __post_init__(self, blues):    
-        self.face_names = [[self.face_string[0]], 
-                           [self.face_string[i] for i in range(1, 6)],
-                           [self.face_string[i] for i in range(6, 11)], 
-                           [self.face_string[11]]]
-        self.faces = [Pentagon(self.face_names[i][j]) 
-                      for i in range(len(self.face_names))
-                      for j in range(len(self.face_names[i]))]
-        self.num_blues = blues
-        self.alt_colors = combinations([0,1,2,3,4,5,6,7,8,9,10,11],
-                          self.num_blues)
+    def __post_init__(self, blues: int):  # blues: c.l.a., defaults to 3
+        self.face_names = [[self.face_string[0]],  # the top face
+                           list(self.face_string[1: 6]),  # two 'rows' in between
+                           list(self.face_string[6: 11]),
+                           [self.face_string[11]]]  # the bottom face
+        # flatten self.face_names
+        self.faces = [Pentagon(face) for face in chain.from_iterable(self.face_names)]
+        self.n_blues = blues
+        self.second_colors = combinations(range(12), self.n_blues)
         self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
         self.dict_face_names_to_faces = {self.face_string[i]: self.faces[i] 
                                    for i in range(len(self.face_string))}
@@ -61,8 +63,8 @@ class Dodeca:
 
     def set_colors(self):
         try:
-            # blue_faces: a list of self.num_blues ints
-            blue_faces = next(self.alt_colors)
+            # blue_faces: a list of self.n_blues ints
+            blue_faces = next(self.second_colors)
             for face_ix in blue_faces:
                 self.faces[face_ix].color = self.faces[face_ix].colors[1]
         except StopIteration:
@@ -145,7 +147,7 @@ class Dodeca:
 
 def main():
     parser = argparse.ArgumentParser(description='Explore the dodecahedron')
-    parser.add_argument('blue', type=int, default=3,
+    parser.add_argument('--blue', '-b', type=int, default=3,
                         help='Number of blue faces in a red dodecahedron')
     args = parser.parse_args()
     d1 = Dodeca(args.blue)
