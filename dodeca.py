@@ -76,10 +76,11 @@ class Dodeca:
             face.color = face.colors[0]
 
     def make_adj_list(self):
-        top_face = self.get_face_names_this_row(0)
-        top_row_face_names = self.get_face_names_this_row(1)
-        bottom_row_face_names = self.get_face_names_this_row(2)
-        bottom_face = self.get_face_names_this_row(3)
+        """Map face names to names of its neighbors"""
+        top_face = self.face_names[0]
+        top_row_face_names = self.face_names[1]
+        bottom_row_face_names = self.face_names[2]
+        bottom_face = self.face_names[3]
         self.adj_list = {'A': top_row_face_names}
         for ix, val in enumerate(top_row_face_names):
             self.adj_list[val] = [
@@ -98,9 +99,6 @@ class Dodeca:
                     self.get_next_face_other_row(top_row_face_names, ix)]
             self.adj_list[val].sort()
         self.adj_list['L'] = bottom_row_face_names
-
-    def get_face_names_this_row(self, row_id) -> list[str]:
-        return self.face_names[row_id]
 
     @staticmethod
     def get_next_face_this_row(face_list, ix):
