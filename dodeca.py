@@ -5,6 +5,7 @@ from itertools import combinations
 
 @dataclass
 class Pentagon:
+    """Represents a face of a dodecahedron"""
     name: str
     colors: tuple[str] = ('Red', 'Blue')
     _color: str = colors[0]
@@ -49,7 +50,8 @@ class Dodeca:
                       for i in range(len(self.face_names))
                       for j in range(len(self.face_names[i]))]
         self.num_blues = blues
-        self.alt_colors = combinations([0,1,2,3,4,5,6,7,8,9,10,11], self.num_blues)
+        self.alt_colors = combinations([0,1,2,3,4,5,6,7,8,9,10,11],
+                          self.num_blues)
         self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
         self.dict_face_names_to_faces = {self.face_string[i]: self.faces[i] 
                                    for i in range(len(self.face_string))}
@@ -59,8 +61,9 @@ class Dodeca:
 
     def set_colors(self):
         try:
+            # blue_faces: a list of self.num_blues ints
             blue_faces = next(self.alt_colors)
-            for face_ix in blue_faces:  # blue_faces: a list of num_blues ints
+            for face_ix in blue_faces:
                 self.faces[face_ix].color = self.faces[face_ix].colors[1]
         except StopIteration:
             return False
@@ -133,12 +136,12 @@ class Dodeca:
         while pattern:
             if self.check_no_adjacent_blue_faces():
                 print(f'Success:\n{self}')
-                self.reset_colors()
+                # self.reset_colors()  # not needed for this use case
                 break
             self.reset_colors()
             pattern = self.set_colors()
         else:
-            print('failure')
+            print('Failure')
 
 def main():
     parser = argparse.ArgumentParser(description='Explore the dodecahedron')
