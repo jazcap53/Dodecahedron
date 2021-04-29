@@ -62,6 +62,7 @@ class Dodeca:
         return '\n'.join([face.__str__() for face in self.faces])
 
     def set_colors(self):
+        """Set colors to the next combination we will test """
         try:
             # blue_faces: a list of self.n_blues ints
             blue_faces = next(self.second_colors)
@@ -72,51 +73,62 @@ class Dodeca:
         return True
 
     def reset_colors(self):
+        """Set all faces to default color"""
         for face in self.faces:
             face.color = face.colors[0]
 
     def make_adj_list(self):
         """Map face names to names of its neighbors"""
-        top_face = self.face_names[0]
-        top_row_face_names = self.face_names[1]
-        bottom_row_face_names = self.face_names[2]
-        bottom_face = self.face_names[3]
-        self.adj_list = {'A': top_row_face_names}
-        for ix, val in enumerate(top_row_face_names):
-            self.adj_list[val] = [
-                    top_face[0],
-                    self.get_prev_face_this_row(top_row_face_names, ix),
-                    self.get_next_face_this_row(top_row_face_names, ix),
-                    self.get_prev_face_other_row(bottom_row_face_names, ix),
-                    self.get_next_face_other_row(bottom_row_face_names, ix)]
+        row_0_face = self.face_names[0]  # a list with one element
+        row_1_faces = self.face_names[1]
+        row_2_faces = self.face_names[2]
+        row_3_face = self.face_names[3]  # a list with one element
+        self.adj_list = {'A': row_1_faces}
+        for ix, val in enumerate(row_1_faces):
+            self.adj_list[val] = [row_0_face[0]]
+            self.adj_list[val].extend(self.get_other_adjacent_faces(
+                                      row_1_faces,
+                                      row_2_faces,
+                                      ix))
             self.adj_list[val].sort()
-        for ix, val in enumerate(bottom_row_face_names):
-            self.adj_list[val] = [
-                    bottom_face[0],
-                    self.get_prev_face_this_row(bottom_row_face_names, ix),
-                    self.get_next_face_this_row(bottom_row_face_names, ix),
-                    self.get_prev_face_other_row(top_row_face_names, ix),
-                    self.get_next_face_other_row(top_row_face_names, ix)]
+        for ix, val in enumerate(row_2_faces):
+            self.adj_list[val] = [row_3_face[0]]
+            self.adj_list[val].extend(self.get_other_adjacent_faces(
+                                      row_2_faces,
+                                      row_1_faces,
+                                      ix))
             self.adj_list[val].sort()
-        self.adj_list['L'] = bottom_row_face_names
+        self.adj_list['L'] = row_2_faces
+
+    def get_other_adjacent_faces(self, this_row_faces, other_row_faces, ix):
+        """Retrieve adjacent faces from this row and other row"""
+        return [self.get_prev_face_this_row(this_row_faces, ix),
+                self.get_next_face_this_row(this_row_faces, ix),
+                self.get_prev_face_other_row(other_row_faces, ix),
+                self.get_next_face_other_row(other_row_faces, ix)]
 
     @staticmethod
     def get_next_face_this_row(face_list, ix):
+        """Get next adjoining face from this row"""
         return face_list[ix + 1] if ix < len(face_list) - 1 else face_list[0]
 
     @staticmethod
     def get_prev_face_this_row(face_list, ix):
+        """Get previous adjoining face from this row"""
         return face_list[ix - 1] if ix > 0 else face_list[len(face_list) - 1]
 
     @staticmethod
     def get_next_face_other_row(face_list, ix):
+        """Get next adjoining face from other row"""
         return face_list[ix]
 
     @staticmethod
     def get_prev_face_other_row(face_list, ix):
+        """Get previous adjoining face from other row"""
         return face_list[ix - 1] if ix > 0 else face_list[len(face_list) - 1]
 
     def check_no_adjacent_blue_faces(self):
+        """Check that no 2 blue faces are adjacent"""
         for i in range(len(self.face_string)):
             face = self.dict_face_names_to_faces[self.face_string[i]]
             face_name = face.name
@@ -130,6 +142,7 @@ class Dodeca:
         return True
 
     def search_colors(self):
+        """Try each combination of face colors"""
         pattern = self.set_colors()
         while pattern:
             if self.check_no_adjacent_blue_faces():
@@ -142,6 +155,7 @@ class Dodeca:
             print('Failure')
 
 def main():
+    """Run the program"""
     parser = argparse.ArgumentParser(description='Explore the dodecahedron')
     parser.add_argument('--blue', '-b', type=int, default=3,
                         help='Number of blue faces in a red dodecahedron')
