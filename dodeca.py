@@ -36,10 +36,10 @@ class Dodeca:
     #        ...Pentagon(name='L'...)]]
     faces: list[Pentagon] = field(init=False)
     face_string: str = field(default='ABCDEFGHIJKL')
-    # map each face name to a list of its adjacent face names
+    # face name => [adjacent face names]
     adj_list: dict[str: list[str]] = field(init=False)
     n_blues: int = field(init=False)
-    second_colors: iter = field(init=False)  # = combinations(range(12), self.n_blues)
+    second_colors: iter = field(init=False)  # yields [int]: list of blue faces
     dict_face_names_to_faces: dict = field(init=False)
 
     def __init__(self, blues: int):  # blues: c.l.a., defaults to 3
@@ -47,11 +47,12 @@ class Dodeca:
 
     def __post_init__(self, blues: int):  # blues: c.l.a., defaults to 3
         self.face_names = [[self.face_string[0]],  # the top face
-                           list(self.face_string[1: 6]),  # two 'rows' in between
+                           list(self.face_string[1: 6]),  # 2 'rows' in between
                            list(self.face_string[6: 11]),
                            [self.face_string[11]]]  # the bottom face
         # flatten self.face_names
-        self.faces = [Pentagon(face) for face in chain.from_iterable(self.face_names)]
+        self.faces = [Pentagon(face)
+                      for face in chain.from_iterable(self.face_names)]
         self.n_blues = blues
         self.second_colors = combinations(range(12), self.n_blues)
         self.make_adj_list()  # {'A': list('BCDEF'), 'B': list('ACFGK'), ...}
