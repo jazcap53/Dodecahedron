@@ -32,7 +32,7 @@ class Pentagon:
 
 @dataclass
 class Dodeca:
-    """A representation of a dodecahedron: each face may be red or blue"""
+    """Represents a dodecahedron: each face may be red or blue"""
     # face_names: [['A'], ['B','C','D','E','F'],
     #              ['G','H','I','J','K'], ['L']]
     face_names: list[list[str]] = field(init=False)
