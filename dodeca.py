@@ -1,6 +1,6 @@
 """
-Check max number of faces in a red dodecahedron can be changed
-to blue so that no two adjoining faces are blue
+Check the maximum number of faces in a red dodecahedron that
+can be changed to blue such that no two adjoining faces are blue
 """
 import argparse
 from dataclasses import dataclass, field
@@ -31,7 +31,7 @@ class Pentagon:
 
 
 @dataclass
-class Dodeca:
+class Dodecahedron:
     """Represents a dodecahedron: each face may be red or blue"""
     # face_names: [['A'], ['B','C','D','E','F'],
     #              ['G','H','I','J','K'], ['L']]
@@ -78,16 +78,16 @@ class Dodeca:
         return True
 
     def reset_colors(self):
-        """Set all faces to default color"""
+        """Set all faces to the default color"""
         for face in self.faces:
             face.color = face.colors[0]
 
     def make_adj_list(self):
-        """Map face names to names of its neighbors"""
-        row_0_face = self.face_names[0]  # a list with one element
+        """Map each face name to the names of its neighbors"""
+        row_0_face = self.face_names[0]  # row_0_face: a list with one element
         row_1_faces = self.face_names[1]
         row_2_faces = self.face_names[2]
-        row_3_face = self.face_names[3]  # a list with one element
+        row_3_face = self.face_names[3]  # row_3_face: a list with one element
         self.adj_list = {'A': row_1_faces}
         for index, val in enumerate(row_1_faces):
             self.adj_list[val] = [row_0_face[0]]
@@ -133,7 +133,7 @@ class Dodeca:
         return face_list[index - 1] if index > 0 else face_list[len(face_list) - 1]
 
     def check_no_adjacent_blue_faces(self):
-        """Check that no 2 blue faces are adjacent"""
+        """Check that no two blue faces are adjacent"""
         for i in range(len(self.face_string)):
             face = self.dict_face_names_to_faces[self.face_string[i]]
             face_name = face.name
@@ -165,7 +165,7 @@ def main():
     parser.add_argument('--blue', '-b', type=int, default=3,
                         help='Number of blue faces in a red dodecahedron')
     args = parser.parse_args()
-    d_1 = Dodeca(args.blue)
+    d_1 = Dodecahedron(args.blue)
     d_1.search_colors()
 
 
