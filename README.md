@@ -13,4 +13,7 @@ By default, the program tries every combination of three blue faces and nine red
 fulfills the desired condition. It prints this combination as a solution.
 
 If the program is handed the command-line argument four, it will try every combination of four blue faces and eight
-red faces. It will find no solution, and prints the string "Failure".
+red faces. It will find no solution, and prints the string "Failure".  
+&nbsp;  
+&nbsp;  
+License: GNU GPLv3
