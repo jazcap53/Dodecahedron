@@ -83,27 +83,17 @@ class Dodecahedron:
             face.color = face.colors[0]
 
     def make_adj_list(self):
-        """Map each face name to the names of its neighbors"""
-        row_0_face = self.face_names[0]  # row_0_face: a list with one element
         row_1_faces = self.face_names[1]
-        row_2_faces = self.face_names[2]
-        row_3_face = self.face_names[3]  # row_3_face: a list with one element
-        self.adj_list = {'A': row_1_faces}
+        self.adj_list = {'A':  row_1_faces}
+        for row_faces in self.face_names:
+            for index, val in enumerate(row_faces):
+                self.adj_list[val] = [self.get_next_face_this_row(row_faces, index)]
+                self.adj_list[val].append(self.get_prev_face_this_row(row_faces, index))
+                if index < len(row_faces) - 1: # No neighbor above on top row.
+                    self.adj_list[val].append(row_faces[index + 1])
+        self.adj_list['L'] = row_2_faces = self.face_names[2] # row_2_faces: a list with one element
         for index, val in enumerate(row_1_faces):
-            self.adj_list[val] = [row_0_face[0]]
-            self.adj_list[val].extend(self.get_other_adjacent_faces(
-                                      row_1_faces,
-                                      row_2_faces,
-                                      index))
-            self.adj_list[val].sort()
-        for index, val in enumerate(row_2_faces):
-            self.adj_list[val] = [row_3_face[0]]
-            self.adj_list[val].extend(self.get_other_adjacent_faces(
-                                      row_2_faces,
-                                      row_1_faces,
-                                      index))
-            self.adj_list[val].sort()
-        self.adj_list['L'] = row_2_faces
+            self.adj_list[val].extend(self.get_other_adjacent_faces(row_1_faces, row_2_faces, index))
 
     def get_other_adjacent_faces(self, this_row_faces, other_row_faces, index):
         """Retrieve adjacent faces from this row and other row"""
